@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>Subprocess protocol notes</title>
-<!-- 2015-01-10 sam. 19:12 -->
+<!-- 2015-01-10 sam. 21:11 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="pstch, eden" />
@@ -161,7 +161,7 @@ for the JavaScript code in this tag.
 <li><a href="#sec-4-1">4.1. <code>SubprocessParserProtocol</code> quick attribute list</a></li>
 </ul>
 </li>
-<li><a href="#sec-5">5. Tasks <code>[56/74]</code> <code>[75%]</code></a>
+<li><a href="#sec-5">5. Tasks <code>[65/78]</code> <code>[83%]</code></a>
 <ul>
 <li><a href="#sec-5-1">5.1. <span class="done DONE">DONE</span> Create subprocess parser notes files <code>[0/0]</code> <code>[100%]</code></a></li>
 <li><a href="#sec-5-2">5.2. <span class="todo TODO">TODO</span> Create protocol (<code>SubprocessParserProtocol</code>) <code>[33/36]</code> <code>[91%]</code></a>
@@ -185,21 +185,22 @@ for the JavaScript code in this tag.
 <li><a href="#sec-5-3-3">5.3.3. <span class="done DONE">DONE</span> Review new structure</a></li>
 </ul>
 </li>
-<li><a href="#sec-5-4">5.4. <span class="todo TODO">TODO</span> Implement protocol in <code>SubprocessChunkParserProtocol</code> <code>[13/26]</code> <code>[50%]</code></a>
+<li><a href="#sec-5-4">5.4. <span class="todo TODO">TODO</span> Implement protocol in <code>SubprocessChunkParserProtocol</code> <code>[22/30]</code> <code>[73%]</code></a>
 <ul>
 <li><a href="#sec-5-4-1">5.4.1. <span class="done DONE">DONE</span> Make task list</a></li>
 <li><a href="#sec-5-4-2">5.4.2. <span class="todo TODO">TODO</span> Document in dev notes</a></li>
-<li><a href="#sec-5-4-3">5.4.3. <span class="todo TODO">TODO</span> Implement POC</a></li>
+<li><a href="#sec-5-4-3">5.4.3. <span class="done DONE">DONE</span> Implement POC</a></li>
 <li><a href="#sec-5-4-4">5.4.4. <span class="done DONE">DONE</span> Check that POC passes syntax and pyflakes checks</a></li>
-<li><a href="#sec-5-4-5">5.4.5. <span class="todo TODO">TODO</span> Review POC</a></li>
-<li><a href="#sec-5-4-6">5.4.6. <span class="todo TODO">TODO</span> Comment POC</a></li>
-<li><a href="#sec-5-4-7">5.4.7. <span class="todo TODO">TODO</span> Add debugging to POC</a></li>
-<li><a href="#sec-5-4-8">5.4.8. <span class="todo TODO">TODO</span> Run real tests</a></li>
-<li><a href="#sec-5-4-9">5.4.9. <span class="todo TODO">TODO</span> Add documentation</a></li>
-<li><a href="#sec-5-4-10">5.4.10. <span class="todo TODO">TODO</span> Add doctests</a></li>
-<li><a href="#sec-5-4-11">5.4.11. <span class="todo TODO">TODO</span> Cleanup code</a></li>
-<li><a href="#sec-5-4-12">5.4.12. <span class="todo TODO">TODO</span> Cleanup debug</a></li>
-<li><a href="#sec-5-4-13">5.4.13. <span class="todo TODO">TODO</span> Benchmark</a></li>
+<li><a href="#sec-5-4-5">5.4.5. <span class="done DONE">DONE</span> Review POC</a></li>
+<li><a href="#sec-5-4-6">5.4.6. <span class="done DONE">DONE</span> Comment POC</a></li>
+<li><a href="#sec-5-4-7">5.4.7. <span class="done DONE">DONE</span> Add debugging to POC</a></li>
+<li><a href="#sec-5-4-8">5.4.8. <span class="done DONE">DONE</span> Run real tests</a></li>
+<li><a href="#sec-5-4-9">5.4.9. <span class="done DONE">DONE</span> Add documentation</a></li>
+<li><a href="#sec-5-4-10">5.4.10. <span class="done DONE">DONE</span> Add doctests</a></li>
+<li><a href="#sec-5-4-11">5.4.11. <span class="done DONE">DONE</span> Cleanup code</a></li>
+<li><a href="#sec-5-4-12">5.4.12. <span class="todo OPEN">OPEN</span> Cleanup debug</a></li>
+<li><a href="#sec-5-4-13">5.4.13. <span class="todo TODO">TODO</span> Add benchmark</a></li>
+<li><a href="#sec-5-4-14">5.4.14. <span class="done DONE">DONE</span> Check tests (+ coverage)</a></li>
 </ul>
 </li>
 </ul>
@@ -208,7 +209,7 @@ for the JavaScript code in this tag.
 </div>
 </div>
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-<caption class="t-above"><span class="table-number">Table 1:</span> Clock summary at <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 19:12]</span></span></caption>
+<caption class="t-above"><span class="table-number">Table 1:</span> Clock summary at <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 21:11]</span></span></caption>
 
 <colgroup>
 <col  class="left" />
@@ -239,7 +240,7 @@ for the JavaScript code in this tag.
 <tbody>
 <tr>
 <td class="left"><b>Total time</b></td>
-<td class="left"><b>1d 0:11</b></td>
+<td class="left"><b>1d 1:50</b></td>
 <td class="right">&#xa0;</td>
 <td class="right">&#xa0;</td>
 <td class="right">&#xa0;</td>
@@ -249,8 +250,8 @@ for the JavaScript code in this tag.
 </tbody>
 <tbody>
 <tr>
-<td class="left">Tasks [56/74] [75%]</td>
-<td class="left">1d 0:11</td>
+<td class="left">Tasks [65/78] [83%]</td>
+<td class="left">1d 1:50</td>
 <td class="right">&#xa0;</td>
 <td class="right">&#xa0;</td>
 <td class="right">&#xa0;</td>
@@ -581,7 +582,7 @@ for the JavaScript code in this tag.
 <tr>
 <td class="left">&emsp; TODO [#A] Implement protocol in&#x2026;</td>
 <td class="left">&#xa0;</td>
-<td class="right">1:35</td>
+<td class="right">3:14</td>
 <td class="right">&#xa0;</td>
 <td class="right">&#xa0;</td>
 <td class="right">&#xa0;</td>
@@ -599,7 +600,7 @@ for the JavaScript code in this tag.
 </tr>
 
 <tr>
-<td class="left">&emsp;&emsp; TODO Implement POC</td>
+<td class="left">&emsp;&emsp; DONE Implement POC</td>
 <td class="left">&#xa0;</td>
 <td class="right">&#xa0;</td>
 <td class="right">1:24</td>
@@ -674,6 +675,66 @@ for the JavaScript code in this tag.
 <td class="right">&#xa0;</td>
 <td class="right">&#xa0;</td>
 <td class="right">0:41</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp; DONE Review POC</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:51</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp; DONE Add debugging to POC</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:14</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp; DONE Run real tests</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:10</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp; DONE Add documentation</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:05</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp; DONE Add doctests</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:11</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp; DONE [#A] Check tests (+ coverage)</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:08</td>
+<td class="right">&#xa0;</td>
 <td class="right">&#xa0;</td>
 <td class="right">&#xa0;</td>
 </tr>
@@ -959,7 +1020,7 @@ specification of the methods with their full signature.
 </div>
 </div>
 <div id="outline-container-sec-5" class="outline-2">
-<h2 id="sec-5"><span class="section-number-2">5</span> Tasks <code>[56/74]</code> <code>[75%]</code></h2>
+<h2 id="sec-5"><span class="section-number-2">5</span> Tasks <code>[65/78]</code> <code>[83%]</code></h2>
 <div class="outline-text-2" id="text-5">
 </div>
 <div id="outline-container-sec-5-1" class="outline-3">
@@ -1660,7 +1721,7 @@ benchmark (<b>future</b>)
 </div>
 </div>
 <div id="outline-container-sec-5-4" class="outline-3">
-<h3 id="sec-5-4"><span class="section-number-3">5.4</span> <span class="todo TODO">TODO</span> Implement protocol in <code>SubprocessChunkParserProtocol</code> <code>[13/26]</code> <code>[50%]</code></h3>
+<h3 id="sec-5-4"><span class="section-number-3">5.4</span> <span class="todo TODO">TODO</span> Implement protocol in <code>SubprocessChunkParserProtocol</code> <code>[22/30]</code> <code>[73%]</code></h3>
 <div class="outline-text-3" id="text-5-4">
 </div>
 <div id="outline-container-sec-5-4-1" class="outline-4">
@@ -1675,13 +1736,19 @@ benchmark (<b>future</b>)
 <div id="outline-container-sec-5-4-2" class="outline-4">
 <h4 id="sec-5-4-2"><span class="section-number-4">5.4.2</span> <span class="todo TODO">TODO</span> Document in dev notes</h4>
 <div class="outline-text-4" id="text-5-4-2">
-</div><ol class="org-ol"><li><a id="sec-5-4-2-1" name="sec-5-4-2-1"></a><span class="todo TODO">TODO</span> Write description<br  /></li>
+</div>
+<ol class="org-ol"><li><a id="sec-5-4-2-1" name="sec-5-4-2-1"></a><span class="todo TODO">TODO</span> Write description<br  /></li>
 <li><a id="sec-5-4-2-2" name="sec-5-4-2-2"></a><span class="todo TODO">TODO</span> Reference in package structure<br  /></li></ol>
 </div>
 <div id="outline-container-sec-5-4-3" class="outline-4">
-<h4 id="sec-5-4-3"><span class="section-number-4">5.4.3</span> <span class="todo TODO">TODO</span> Implement POC</h4>
+<h4 id="sec-5-4-3"><span class="section-number-4">5.4.3</span> <span class="done DONE">DONE</span> Implement POC</h4>
 <div class="outline-text-4" id="text-5-4-3">
-</div><ol class="org-ol"><li><a id="sec-5-4-3-1" name="sec-5-4-3-1"></a><span class="done DONE">DONE</span> Create new module and files<br  /><div class="outline-text-5" id="text-5-4-3-1">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 21:06]</span></span>
+</li>
+</ul>
+</div>
+<ol class="org-ol"><li><a id="sec-5-4-3-1" name="sec-5-4-3-1"></a><span class="done DONE">DONE</span> Create new module and files<br  /><div class="outline-text-5" id="text-5-4-3-1">
 <ul class="org-ul">
 <li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 08:16]</span></span>
 </li>
@@ -1802,38 +1869,111 @@ lists)
 </div>
 </div>
 <div id="outline-container-sec-5-4-5" class="outline-4">
-<h4 id="sec-5-4-5"><span class="section-number-4">5.4.5</span> <span class="todo TODO">TODO</span> Review POC</h4>
+<h4 id="sec-5-4-5"><span class="section-number-4">5.4.5</span> <span class="done DONE">DONE</span> Review POC</h4>
+<div class="outline-text-4" id="text-5-4-5">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 21:04]</span></span>
+</li>
+</ul>
+</div>
 </div>
 <div id="outline-container-sec-5-4-6" class="outline-4">
-<h4 id="sec-5-4-6"><span class="section-number-4">5.4.6</span> <span class="todo TODO">TODO</span> Comment POC</h4>
+<h4 id="sec-5-4-6"><span class="section-number-4">5.4.6</span> <span class="done DONE">DONE</span> Comment POC</h4>
+<div class="outline-text-4" id="text-5-4-6">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 20:47]</span></span>
+</li>
+</ul>
+</div>
 </div>
 <div id="outline-container-sec-5-4-7" class="outline-4">
-<h4 id="sec-5-4-7"><span class="section-number-4">5.4.7</span> <span class="todo TODO">TODO</span> Add debugging to POC</h4>
+<h4 id="sec-5-4-7"><span class="section-number-4">5.4.7</span> <span class="done DONE">DONE</span> Add debugging to POC</h4>
+<div class="outline-text-4" id="text-5-4-7">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 21:04]</span></span>
+</li>
+</ul>
+</div>
 </div>
 <div id="outline-container-sec-5-4-8" class="outline-4">
-<h4 id="sec-5-4-8"><span class="section-number-4">5.4.8</span> <span class="todo TODO">TODO</span> Run real tests</h4>
+<h4 id="sec-5-4-8"><span class="section-number-4">5.4.8</span> <span class="done DONE">DONE</span> Run real tests</h4>
+<div class="outline-text-4" id="text-5-4-8">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 21:04]</span></span>
+</li>
+</ul>
+</div>
 </div>
 <div id="outline-container-sec-5-4-9" class="outline-4">
-<h4 id="sec-5-4-9"><span class="section-number-4">5.4.9</span> <span class="todo TODO">TODO</span> Add documentation</h4>
+<h4 id="sec-5-4-9"><span class="section-number-4">5.4.9</span> <span class="done DONE">DONE</span> Add documentation</h4>
+<div class="outline-text-4" id="text-5-4-9">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 21:03]</span></span>
+</li>
+</ul>
+</div>
 </div>
 <div id="outline-container-sec-5-4-10" class="outline-4">
-<h4 id="sec-5-4-10"><span class="section-number-4">5.4.10</span> <span class="todo TODO">TODO</span> Add doctests</h4>
+<h4 id="sec-5-4-10"><span class="section-number-4">5.4.10</span> <span class="done DONE">DONE</span> Add doctests</h4>
+<div class="outline-text-4" id="text-5-4-10">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 21:04]</span></span>
+</li>
+</ul>
+</div>
 </div>
 <div id="outline-container-sec-5-4-11" class="outline-4">
-<h4 id="sec-5-4-11"><span class="section-number-4">5.4.11</span> <span class="todo TODO">TODO</span> Cleanup code</h4>
+<h4 id="sec-5-4-11"><span class="section-number-4">5.4.11</span> <span class="done DONE">DONE</span> Cleanup code</h4>
+<div class="outline-text-4" id="text-5-4-11">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 21:04]</span></span>
+</li>
+</ul>
+</div>
 </div>
 <div id="outline-container-sec-5-4-12" class="outline-4">
-<h4 id="sec-5-4-12"><span class="section-number-4">5.4.12</span> <span class="todo TODO">TODO</span> Cleanup debug</h4>
+<h4 id="sec-5-4-12"><span class="section-number-4">5.4.12</span> <span class="todo OPEN">OPEN</span> Cleanup debug</h4>
+<div class="outline-text-4" id="text-5-4-12">
+<ul class="org-ul">
+<li>Note taken on <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 21:10]</span></span> <br  />
+      not much to do
+</li>
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 21:10]</span></span>
+</li>
+</ul>
+</div>
 </div>
 <div id="outline-container-sec-5-4-13" class="outline-4">
-<h4 id="sec-5-4-13"><span class="section-number-4">5.4.13</span> <span class="todo TODO">TODO</span> Benchmark</h4>
+<h4 id="sec-5-4-13"><span class="section-number-4">5.4.13</span> <span class="todo TODO">TODO</span> Add benchmark</h4>
+<div class="outline-text-4" id="text-5-4-13">
+<ul class="org-ul">
+<li>Note taken on <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 21:05]</span></span> <br  />
+      Must use static file (not <code>dmesg</code>)
+</li>
+</ul>
+</div>
+<ol class="org-ol"><li><a id="sec-5-4-13-1" name="sec-5-4-13-1"></a><span class="todo TODO">TODO</span> Make proposal<br  /><ol class="org-ol"><li><a id="sec-5-4-13-1-1" name="sec-5-4-13-1-1"></a><span class="todo TODO">TODO</span> Ok to c/c code from other benchs ?<br  /><ol class="org-ol"><li><a id="sec-5-4-13-1-1-1" name="sec-5-4-13-1-1-1"></a><span class="todo TODO">TODO</span> Share code with subprocess parser protocol benchmark ?<br  /></li></ol>
+</li></ol>
+</li></ol>
+</div>
+<div id="outline-container-sec-5-4-14" class="outline-4">
+<h4 id="sec-5-4-14"><span class="section-number-4">5.4.14</span> <span class="done DONE">DONE</span> Check tests (+ coverage)</h4>
+<div class="outline-text-4" id="text-5-4-14">
+<ul class="org-ul">
+<li>State "DONE"       from "OPEN"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 21:08]</span></span> <br  />
+      almost perfect (3 missses, but nothing serious)
+</li>
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 21:07]</span></span>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: pstch, eden</p>
-<p class="date">Created: 2015-01-10 sam. 19:12</p>
+<p class="date">Created: 2015-01-10 sam. 21:11</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.3.1 (<a href="http://orgmode.org">Org</a> mode 8.2.7c)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
