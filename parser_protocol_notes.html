@@ -1,0 +1,1841 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>Subprocess protocol notes</title>
+<!-- 2015-01-10 sam. 19:12 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<meta  name="author" content="pstch, eden" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  pre.src-sh:before    { content: 'sh'; }
+  pre.src-bash:before  { content: 'sh'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-R:before     { content: 'R'; }
+  pre.src-perl:before  { content: 'Perl'; }
+  pre.src-java:before  { content: 'Java'; }
+  pre.src-sql:before   { content: 'SQL'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.right  { text-align: center;  }
+  th.left   { text-align: center;   }
+  th.center { text-align: center; }
+  td.right  { text-align: right;  }
+  td.left   { text-align: left;   }
+  td.center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara:nth-child(2) { display: inline; }
+  .footpara { display: block; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Subprocess protocol notes</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. Introduction</a>
+<ul>
+<li><a href="#sec-1-1">1.1. Subprocess execution</a></li>
+<li><a href="#sec-1-2">1.2. Subprocess protocol signature</a></li>
+<li><a href="#sec-1-3">1.3. <code>make_parser</code> abstract method</a></li>
+</ul>
+</li>
+<li><a href="#sec-2">2. Implementation</a>
+<ul>
+<li><a href="#sec-2-1">2.1. Package structure</a></li>
+<li><a href="#sec-2-2">2.2. Benchmarks</a></li>
+</ul>
+</li>
+<li><a href="#sec-3">3. Current status</a></li>
+<li><a href="#sec-4">4. Reference</a>
+<ul>
+<li><a href="#sec-4-1">4.1. <code>SubprocessParserProtocol</code> quick attribute list</a></li>
+</ul>
+</li>
+<li><a href="#sec-5">5. Tasks <code>[56/74]</code> <code>[75%]</code></a>
+<ul>
+<li><a href="#sec-5-1">5.1. <span class="done DONE">DONE</span> Create subprocess parser notes files <code>[0/0]</code> <code>[100%]</code></a></li>
+<li><a href="#sec-5-2">5.2. <span class="todo TODO">TODO</span> Create protocol (<code>SubprocessParserProtocol</code>) <code>[33/36]</code> <code>[91%]</code></a>
+<ul>
+<li><a href="#sec-5-2-1">5.2.1. <span class="done DONE">DONE</span> Implement POC</a></li>
+<li><a href="#sec-5-2-2">5.2.2. <span class="done DONE">DONE</span> Review POC</a></li>
+<li><a href="#sec-5-2-3">5.2.3. <span class="done DONE">DONE</span> Check that SubprocessProtocol can be used with abstract subclass</a></li>
+<li><a href="#sec-5-2-4">5.2.4. <span class="done DONE">DONE</span> Allow abstract subclass to implement itself in a class method</a></li>
+<li><a href="#sec-5-2-5">5.2.5. <span class="done DONE">DONE</span> Comment POC</a></li>
+<li><a href="#sec-5-2-6">5.2.6. <span class="done DONE">DONE</span> Create sample implementation</a></li>
+<li><a href="#sec-5-2-7">5.2.7. <span class="done DONE">DONE</span> Run real tests (iterations)</a></li>
+<li><a href="#sec-5-2-8">5.2.8. <span class="done DONE">DONE</span> Cleanup code</a></li>
+<li><a href="#sec-5-2-9">5.2.9. <span class="done DONE">DONE</span> Cleanup debug</a></li>
+<li><a href="#sec-5-2-10">5.2.10. <span class="done DONE">DONE</span> Benchmark</a></li>
+</ul>
+</li>
+<li><a href="#sec-5-3">5.3. <span class="done DONE">DONE</span> Refactor module structure (module paths) <code>[8/8]</code> <code>[100%]</code></a>
+<ul>
+<li><a href="#sec-5-3-1">5.3.1. <span class="done DONE">DONE</span> Make proposal</a></li>
+<li><a href="#sec-5-3-2">5.3.2. <span class="done DONE">DONE</span> Implement proposal</a></li>
+<li><a href="#sec-5-3-3">5.3.3. <span class="done DONE">DONE</span> Review new structure</a></li>
+</ul>
+</li>
+<li><a href="#sec-5-4">5.4. <span class="todo TODO">TODO</span> Implement protocol in <code>SubprocessChunkParserProtocol</code> <code>[13/26]</code> <code>[50%]</code></a>
+<ul>
+<li><a href="#sec-5-4-1">5.4.1. <span class="done DONE">DONE</span> Make task list</a></li>
+<li><a href="#sec-5-4-2">5.4.2. <span class="todo TODO">TODO</span> Document in dev notes</a></li>
+<li><a href="#sec-5-4-3">5.4.3. <span class="todo TODO">TODO</span> Implement POC</a></li>
+<li><a href="#sec-5-4-4">5.4.4. <span class="done DONE">DONE</span> Check that POC passes syntax and pyflakes checks</a></li>
+<li><a href="#sec-5-4-5">5.4.5. <span class="todo TODO">TODO</span> Review POC</a></li>
+<li><a href="#sec-5-4-6">5.4.6. <span class="todo TODO">TODO</span> Comment POC</a></li>
+<li><a href="#sec-5-4-7">5.4.7. <span class="todo TODO">TODO</span> Add debugging to POC</a></li>
+<li><a href="#sec-5-4-8">5.4.8. <span class="todo TODO">TODO</span> Run real tests</a></li>
+<li><a href="#sec-5-4-9">5.4.9. <span class="todo TODO">TODO</span> Add documentation</a></li>
+<li><a href="#sec-5-4-10">5.4.10. <span class="todo TODO">TODO</span> Add doctests</a></li>
+<li><a href="#sec-5-4-11">5.4.11. <span class="todo TODO">TODO</span> Cleanup code</a></li>
+<li><a href="#sec-5-4-12">5.4.12. <span class="todo TODO">TODO</span> Cleanup debug</a></li>
+<li><a href="#sec-5-4-13">5.4.13. <span class="todo TODO">TODO</span> Benchmark</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<caption class="t-above"><span class="table-number">Table 1:</span> Clock summary at <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 19:12]</span></span></caption>
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">Headline</th>
+<th scope="col" class="left">Time</th>
+<th scope="col" class="right">&#xa0;</th>
+<th scope="col" class="right">&#xa0;</th>
+<th scope="col" class="right">&#xa0;</th>
+<th scope="col" class="right">&#xa0;</th>
+<th scope="col" class="right">&#xa0;</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left"><b>Total time</b></td>
+<td class="left"><b>1d 0:11</b></td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left">Tasks [56/74] [75%]</td>
+<td class="left">1d 0:11</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp; DONE Create subprocess parser notes&#x2026;</td>
+<td class="left">&#xa0;</td>
+<td class="right">0:53</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp; TODO Create protocol&#x2026;</td>
+<td class="left">&#xa0;</td>
+<td class="right">16:47</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp; DONE Review POC</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">7:57</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp; DONE Check that SubprocessProtocol&#x2026;</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:02</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp; DONE Allow abstract subclass to&#x2026;</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:21</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp; DONE Comment POC</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:31</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp; DONE Cleanup code</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:17</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp; DONE Implement <code>pipe_connection_lost</code></td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:17</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp; DONE Benchmark</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">7:39</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp; DONE Create benchmark fake protocol</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:08</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp; DONE Create draft benchmark main module</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">6:01</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp;&emsp; DONE Add logging in benchmark main&#x2026;</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">1:30</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp;&emsp;&emsp; DONE Check that the benchmark main&#x2026;</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:25</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp;&emsp;&emsp; CANCELED Document <code>run_process</code> in&#x2026;</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:36</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp;&emsp; DONE Choose argument parsing method</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">2:50</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp;&emsp;&emsp; DONE Implement argument parsing</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:39</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp;&emsp;&emsp; DONE Comment main module</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">2:11</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp; DONE Add doctest</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:18</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp; DONE Determine whether the&#x2026;</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:07</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp; DONE Write <code>run_process</code> coroutine</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:30</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp;&emsp; DONE Add comments</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:14</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp; DONE Change doctest (use&#x2026;</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:01</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp; DONE Change benchmark (use&#x2026;</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:02</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp; TODO Add docstrings [2/3]</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:01</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp;&emsp; DONE Add module docstring</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:01</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp; DONE [#A] Refactor module structure&#x2026;</td>
+<td class="left">&#xa0;</td>
+<td class="right">4:56</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp; DONE [#A] Make proposal</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:15</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp; DONE [#A] Implement proposal</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:23</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp; DONE [#A] Fix imports module paths</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:06</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp; DONE Fix dev notes module paths</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:02</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp; DONE [#A] Make everything work&#x2026;</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:09</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp; DONE [#A] Review new structure</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:31</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp; TODO [#A] Implement protocol in&#x2026;</td>
+<td class="left">&#xa0;</td>
+<td class="right">1:35</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp; DONE Make task list</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:11</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp; TODO Implement POC</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">1:24</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp; DONE Create new module and files</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:07</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp; DONE Add module logger code</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:04</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp; DONE Define parameters list&#x2026;</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:12</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp; DONE Subclass subprocess parser protocol</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:01</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp; DONE Add parameters attributes</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:01</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp; DONE Add constructor</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:18</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">&emsp;&emsp;&emsp; DONE Add parser factory</td>
+<td class="left">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+<td class="right">0:41</td>
+<td class="right">&#xa0;</td>
+<td class="right">&#xa0;</td>
+</tr>
+</tbody>
+</table>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Introduction</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+The burrito subprocess protocol is a subclass of the original AsyncIO
+<code>SubprocessProtocol</code> class, that passes the data arriving on the input
+pipe file descriptors to chunk parsers with a regular expression set
+relative to the file descriptor no. In other terms, there is a
+dictionary for each process output number, containing the regexs to
+match in the stream for the output number (and a handler for the
+matches, that can be <code>None</code>).
+</p>
+
+<p>
+In a Burrito, this subprocess protocol is used to communicate with the
+process and parse its standard error and output with the given
+matching regexes.
+</p>
+</div>
+
+<div id="outline-container-sec-1-1" class="outline-3">
+<h3 id="sec-1-1"><span class="section-number-3">1.1</span> Subprocess execution</h3>
+<div class="outline-text-3" id="text-1-1">
+<p>
+The subprocess protocol can provide a coroutine function that
+executes the process. This can be used to automatically set <code>stdin</code>
+to <code>None</code>, which is needed to avoid blocking on a process waiting for
+standard input when not needed (as it's the case with Micmac). This
+coroutine function would need to be a <code>classmethod</code>, as we can not
+instantiate the protocol directly, it is instantiated when running
+the coroutine (when executing the function in AsyncIO to execute a
+process, we give it a "protocol factory", a callable that returns a
+protocol instance that can be used (with the AsyncIO transport) to
+communicate with subprocess
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-1-2" class="outline-3">
+<h3 id="sec-1-2"><span class="section-number-3">1.2</span> Subprocess protocol signature</h3>
+<div class="outline-text-3" id="text-1-2">
+<p>
+The subprocess protocol constructor takes 3 keyword arguments, that
+can be used as positional arguments in the following order :
+</p>
+<dl class="org-dl">
+<dt> <code>started</code> </dt><dd>(default value <code>None</code>) <code>Future</code> that completes when
+the process starts (if <code>None</code>, will be automatically
+created)
+</dd>
+<dt> <code>exited</code> </dt><dd>(default value <code>None</code>) <code>Future</code> that completes when the
+process exits (if <code>None</code>, will be automatically
+created)
+</dd>
+<dt> <code>loop</code> </dt><dd>(default value <code>None</code>) AsyncIO event loop (if <code>None</code>,
+will be automatically initialized using
+<code>burrito.aio.loop.get_event_loop</code>)
+</dd>
+</dl>
+
+<p>
+<b>NOTE</b>: <code>burrito.aio.loop.get_event_loop</code> is needed because on Windows
+("NT" platforms), we have to set the event loop to a
+<code>ProactorEventLoop</code> to use pipes on processes. Because of this, <code>loop</code>
+needs to pass <code>burrito.aio.loop.check_event_loop</code> when running in
+non-optimized mode (by using an assertion).
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-1-3" class="outline-3">
+<h3 id="sec-1-3"><span class="section-number-3">1.3</span> <code>make_parser</code> abstract method</h3>
+<div class="outline-text-3" id="text-1-3">
+<p>
+The subprocess protocol is an abstract class, and an implementation
+must be provided for its <code>make_parser</code> method. This method will be
+called when data arrives on a file descriptor and no parser is
+available for this file descriptor.
+</p>
+
+<p>
+<b>NOTE</b> : This is implemented, for example, by the
+<code>SubprocessChunkParserProtocol</code> subclass, that uses a chunk parser
+(<code>burrito.chunk_parser.ChunkParser</code>) to match regular expressions on
+the data stream.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Implementation</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-sec-2-1" class="outline-3">
+<h3 id="sec-2-1"><span class="section-number-3">2.1</span> Package structure</h3>
+<div class="outline-text-3" id="text-2-1">
+<p>
+Since <i>the package structure was refactored</i>, the AsyncIO subprocess
+module is available at the <code>burrito.aio.subproc</code> namespace, and is
+structured as follows (legend: <span class="underline">modules</span>, <b>classes</b>, other):
+</p>
+
+<dl class="org-dl">
+<dt> <code>subproc</code> </dt><dd><span class="underline">AsyncIO subprocess module</span>
+<dl class="org-dl">
+<dt> <code>SubprocessParserProtocol</code> </dt><dd><b>Subprocess parser protocol class</b>
+</dd>
+<dt> <code>bench</code> </dt><dd><span class="underline">Benchmark module</span>
+</dd>
+</dl>
+</dd>
+</dl>
+
+<p>
+The benchmarks are available from the following namespaces :
+</p>
+<ul class="org-ul">
+<li><code>burrito.aio.subproc.bench</code>
+</li>
+<li><code>burrito.benchs.aio_subproc</code> (alias)
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2" class="outline-3">
+<h3 id="sec-2-2"><span class="section-number-3">2.2</span> Benchmarks</h3>
+<div class="outline-text-3" id="text-2-2">
+<p>
+Sample benchmark run :
+</p>
+<pre class="example">
+pistache@tranquility:~/code/3den/burrito$ python -m burrito.benchs.aio_subproc 1 1
+# Running burrito (v0.2.1) AsyncIO subprocess parser protocol benchmark
+input:1.0 secondsiterations:1average:0.0023422919985023327 seconds
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> Current status</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+<code>SubprocessParserProtocol</code> has been interactively tested and, is
+callable from the <a href="#sec-5-2-10">benchmark script</a>, and a doctest is provided.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> Reference</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-sec-4-1" class="outline-3">
+<h3 id="sec-4-1"><span class="section-number-3">4.1</span> <code>SubprocessParserProtocol</code> quick attribute list</h3>
+<div class="outline-text-3" id="text-4-1">
+<p>
+This section is just a quick reference, for some attribute, used when comparing
+different implementations, it does not provide a complete
+specification of the methods with their full signature.
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">Attribute name</th>
+<th scope="col" class="left">Type</th>
+<th scope="col" class="left">Defined by</th>
+<th scope="col" class="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left"><code>logger</code></td>
+<td class="left">Internal attribute</td>
+<td class="left"><code>SubprocessParserProtocol</code> constructor</td>
+<td class="left">Logger</td>
+</tr>
+
+<tr>
+<td class="left"><code>parser_regexs</code></td>
+<td class="left">attribute (<code>dict</code>)</td>
+<td class="left"><code>SubprocessParserProtocol</code></td>
+<td class="left">Regex definitions</td>
+</tr>
+
+<tr>
+<td class="left"><code>pid</code></td>
+<td class="left">attribute (<code>dict</code>)</td>
+<td class="left"><code>SubprocessParserProtocol</code></td>
+<td class="left">Process ID</td>
+</tr>
+
+<tr>
+<td class="left"><code>parser_class</code></td>
+<td class="left">attribute (<code>type</code>)</td>
+<td class="left"><code>SubprocessParserProtocol</code></td>
+<td class="left">Parser class</td>
+</tr>
+
+<tr>
+<td class="left"><code>__init__</code></td>
+<td class="left">Special method</td>
+<td class="left"><code>SubprocessParserProtocol</code></td>
+<td class="left"><b>Constructor</b></td>
+</tr>
+
+<tr>
+<td class="left"><code>for_parser_factory</code></td>
+<td class="left">Class method</td>
+<td class="left"><code>SubprocessParserProtocol</code></td>
+<td class="left">Subclass for parser factory</td>
+</tr>
+
+<tr>
+<td class="left"><code>run_process</code></td>
+<td class="left">Class method (coroutine)</td>
+<td class="left"><code>SubprocessParserProtocol</code></td>
+<td class="left">Process runner coroutine</td>
+</tr>
+
+<tr>
+<td class="left"><code>run_process_sync</code></td>
+<td class="left">Class method</td>
+<td class="left"><code>SubprocessParserProtocol</code></td>
+<td class="left">Process runner method</td>
+</tr>
+
+<tr>
+<td class="left"><code>make_parser</code></td>
+<td class="left">Abstract method</td>
+<td class="left"><code>SubprocessParserProtocol</code></td>
+<td class="left">Initialize a parser</td>
+</tr>
+
+<tr>
+<td class="left"><code>connection_made</code></td>
+<td class="left">Overriden AsyncIO method</td>
+<td class="left"><code>SubprocessParserProtocol</code></td>
+<td class="left">Process start</td>
+</tr>
+
+<tr>
+<td class="left"><code>pipe_data_received</code></td>
+<td class="left">Overriden AsyncIO method</td>
+<td class="left"><code>SubprocessParserProtocol</code></td>
+<td class="left">Receive data</td>
+</tr>
+
+<tr>
+<td class="left"><code>pipe_connection_lost</code></td>
+<td class="left">Overriden AsyncIO method</td>
+<td class="left"><code>SubprocessParserProtocol</code></td>
+<td class="left">Stream close</td>
+</tr>
+
+<tr>
+<td class="left"><code>process_exit</code></td>
+<td class="left">Overriden AsyncIO method</td>
+<td class="left"><code>SubprocessParserProtocol</code></td>
+<td class="left">Process exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> Tasks <code>[56/74]</code> <code>[75%]</code></h2>
+<div class="outline-text-2" id="text-5">
+</div>
+<div id="outline-container-sec-5-1" class="outline-3">
+<h3 id="sec-5-1"><span class="section-number-3">5.1</span> <span class="done DONE">DONE</span> Create subprocess parser notes files <code>[0/0]</code> <code>[100%]</code></h3>
+<div class="outline-text-3" id="text-5-1">
+<ul class="org-ul">
+<li>Add draft subprocess parser NOTES file
+
+<p>
+with reference, signature and extended description (+ tasks)
+</p>
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-sec-5-2" class="outline-3">
+<h3 id="sec-5-2"><span class="section-number-3">5.2</span> <span class="todo TODO">TODO</span> Create protocol (<code>SubprocessParserProtocol</code>) <code>[33/36]</code> <code>[91%]</code></h3>
+<div class="outline-text-3" id="text-5-2">
+<ul class="org-ul">
+<li>Created SubprocessParser Protocol POC
+
+<p>
+rollin one and testing POC
+</p>
+</li>
+</ul>
+
+<p>
+Code file : <a href="./__init__.py">./__init__.py</a>
+</p>
+</div>
+
+<div id="outline-container-sec-5-2-1" class="outline-4">
+<h4 id="sec-5-2-1"><span class="section-number-4">5.2.1</span> <span class="done DONE">DONE</span> Implement POC</h4>
+<div class="outline-text-4" id="text-5-2-1">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 00:49]</span></span>
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-sec-5-2-2" class="outline-4">
+<h4 id="sec-5-2-2"><span class="section-number-4">5.2.2</span> <span class="done DONE">DONE</span> Review POC</h4>
+<div class="outline-text-4" id="text-5-2-2">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 00:49]</span></span>
+</li>
+</ul>
+<ul class="org-ul">
+<li>Created two more TODO items, made SubprocessParserProtocol abstract
+</li>
+</ul>
+<ul class="org-ul">
+<li>Slept for 6 hours, code mentally reviewed
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-sec-5-2-3" class="outline-4">
+<h4 id="sec-5-2-3"><span class="section-number-4">5.2.3</span> <span class="done DONE">DONE</span> Check that SubprocessProtocol can be used with abstract subclass</h4>
+<div class="outline-text-4" id="text-5-2-3">
+<ul class="org-ul">
+<li>CLOSING NOTE <span class="timestamp-wrapper"><span class="timestamp">[2015-01-08 jeu. 16:16]</span></span> <br  />
+      Looks ok (protocol classes are really simple, no metaclass specified)
+</li>
+</ul>
+<p>
+<b>NOTE</b> : Check <a href="https://github.com/python/cpython/blob/master/Lib/asyncio/protocols.py">Python source</a> too
+</p>
+</div>
+</div>
+<div id="outline-container-sec-5-2-4" class="outline-4">
+<h4 id="sec-5-2-4"><span class="section-number-4">5.2.4</span> <span class="done DONE">DONE</span> Allow abstract subclass to implement itself in a class method</h4>
+<div class="outline-text-4" id="text-5-2-4">
+<ul class="org-ul">
+<li>State "DONE"       from "OPEN"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 01:18]</span></span> <br  />
+      Implemented in <code>for_parser_factory</code>
+</li>
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 00:57]</span></span>
+</li>
+</ul>
+</div>
+<ol class="org-ol"><li><a id="sec-5-2-4-1" name="sec-5-2-4-1"></a><span class="todo TODO">TODO</span> Document <code>for_parser_factory</code> in Org notes<br  /><div class="outline-text-5" id="text-5-2-4-1">
+<p>
+<a href="__init__.py">Source file</a>
+</p>
+</div>
+</li></ol>
+</div>
+
+<div id="outline-container-sec-5-2-5" class="outline-4">
+<h4 id="sec-5-2-5"><span class="section-number-4">5.2.5</span> <span class="done DONE">DONE</span> Comment POC</h4>
+<div class="outline-text-4" id="text-5-2-5">
+<ul class="org-ul">
+<li>State "DONE"       from "OPEN"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 01:52]</span></span> <br  />
+      Implemented <code>pipe_connection_lost</code>
+</li>
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-08 jeu. 16:18]</span></span>
+</li>
+</ul>
+<ul class="org-ul">
+<li>Comments added (commit 2693107)
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-sec-5-2-6" class="outline-4">
+<h4 id="sec-5-2-6"><span class="section-number-4">5.2.6</span> <span class="done DONE">DONE</span> Create sample implementation</h4>
+<div class="outline-text-4" id="text-5-2-6">
+<ul class="org-ul">
+<li>State "DONE"       from "OPEN"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 00:49]</span></span>
+</li>
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 00:32]</span></span>
+</li>
+</ul>
+
+<p>
+Using <code>print</code> as parser, to check that output is correctly read
+from the FDs
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-5-2-7" class="outline-4">
+<h4 id="sec-5-2-7"><span class="section-number-4">5.2.7</span> <span class="done DONE">DONE</span> Run real tests (iterations)</h4>
+<div class="outline-text-4" id="text-5-2-7">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 00:49]</span></span>
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-sec-5-2-8" class="outline-4">
+<h4 id="sec-5-2-8"><span class="section-number-4">5.2.8</span> <span class="done DONE">DONE</span> Cleanup code</h4>
+<div class="outline-text-4" id="text-5-2-8">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 00:50]</span></span>
+</li>
+<li>Note taken on <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 01:19]</span></span> <br  />
+      Cleaned up <a href="NOTES.html">fake protocol implementation</a>
+</li>
+</ul>
+</div>
+<ol class="org-ol"><li><a id="sec-5-2-8-1" name="sec-5-2-8-1"></a><span class="done DONE">DONE</span> Implement <code>pipe_connection_lost</code><br  /><div class="outline-text-5" id="text-5-2-8-1">
+<ul class="org-ul">
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 01:34]</span></span>
+</li>
+</ul>
+<ul class="org-ul">
+<li>Implemented <code>pipe_connection_lost</code>
+      (remove parser from <code>_parsers</code>)
+</li>
+</ul>
+</div>
+</li></ol>
+</div>
+
+<div id="outline-container-sec-5-2-9" class="outline-4">
+<h4 id="sec-5-2-9"><span class="section-number-4">5.2.9</span> <span class="done DONE">DONE</span> Cleanup debug</h4>
+<div class="outline-text-4" id="text-5-2-9">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 00:50]</span></span>
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-sec-5-2-10" class="outline-4">
+<h4 id="sec-5-2-10"><span class="section-number-4">5.2.10</span> <span class="done DONE">DONE</span> Benchmark</h4>
+<div class="outline-text-4" id="text-5-2-10">
+<ul class="org-ul">
+<li>Switch to benchmark fake protocol
+</li>
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-08 jeu. 17:06]</span></span>
+</li>
+</ul>
+<p>
+<b>NOTE</b> : Benchmark should run with the logging set to logging.INFO and Python
+running in optimized mode.
+</p>
+
+<p>
+ A good way to benchmark would be to write an implementation that
+actually writes the output to a file (in SHM preferably, and burrito
+already provides helpers for this), and to call the parser with
+<code>/dev/zero</code>.
+</p>
+
+<p>
+<b>NOTE</b> : This makes the benchmark module restricted to POSIX platforms
+</p>
+</div>
+
+<ol class="org-ol"><li><a id="sec-5-2-10-1" name="sec-5-2-10-1"></a><span class="done DONE">DONE</span> Create benchmark fake protocol<br  /><div class="outline-text-5" id="text-5-2-10-1">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 01:27]</span></span> <br  />
+        Implemented using <a href="NOTES.html"><code>for_parser_factory</code></a>
+</li>
+</ul>
+<ul class="org-ul">
+<li>Added draft fake protocol that does nothing with the given data
+</li>
+</ul>
+</div>
+</li>
+
+<li><a id="sec-5-2-10-2" name="sec-5-2-10-2"></a><span class="done DONE">DONE</span> Create draft benchmark main module<br  /><div class="outline-text-5" id="text-5-2-10-2">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-08 jeu. 19:23]</span></span> <br  />
+        Added benchmark main module e79a735
+</li>
+</ul>
+<ul class="org-ul">
+<li>Added benchmark main module, runs the parser protocol (with a fake
+parser) and measure the times it take relative to the time waited by
+the subprocess.
+</li>
+</ul>
+
+<p>
+<b>NOTE</b> : The result of the benchmark is not a measurement of the time
+the parser took, as it also includes the overhead of starting dd. It
+can be used only as a base value for comparative tests.
+</p>
+
+<p>
+See <a href="./benchmark/__main__.py">./benchmark/__main__.py</a>
+</p>
+</div>
+
+<ol class="org-ol"><li><a id="sec-5-2-10-2-1" name="sec-5-2-10-2-1"></a><span class="done DONE">DONE</span> Add logging in benchmark main module<br  /><div class="outline-text-6" id="text-5-2-10-2-1">
+<ul class="org-ul">
+<li>State "DONE"       from "OPEN"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 07:30]</span></span>
+</li>
+</ul>
+<ul class="org-ul">
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 07:01]</span></span>
+</li>
+</ul>
+</div>
+<ol class="org-ol"><li><a id="sec-5-2-10-2-1-1" name="sec-5-2-10-2-1-1"></a><span class="done DONE">DONE</span> Check that the benchmark main module is not executed when running the tests<br  /><div class="outline-text-7" id="text-5-2-10-2-1-1">
+<ul class="org-ul">
+<li>State "DONE"       from "OPEN"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 05:12]</span></span> <br  />
+         Checked
+</li>
+<li>Note taken on <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 04:59]</span></span> <br  />
+         May need to fix the way it's written too
+</li>
+</ul>
+<ul class="org-ul">
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 04:35]</span></span>
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-5-2-10-2-1-2" name="sec-5-2-10-2-1-2"></a><span class="done DONE">DONE</span> Add draft <code>run_process</code> aio coroutine<br  /><div class="outline-text-7" id="text-5-2-10-2-1-2">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-08 jeu. 19:25]</span></span> <br  />
+         <code>e79a735</code>
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-5-2-10-2-1-3" name="sec-5-2-10-2-1-3"></a><span class="done CANCELED">CANCELED</span> Document <code>run_process</code> in Org notes<br  /><div class="outline-text-7" id="text-5-2-10-2-1-3">
+<ul class="org-ul">
+<li>State "CANCELED"   from "OPEN"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 00:51]</span></span> <br  />
+         Comments and docstrings are enough
+</li>
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 05:55]</span></span>
+</li>
+</ul>
+<p>
+<b>NOTE</b> : This is the main process runner method (also see <code>run_process_sync</code>)
+</p>
+</div>
+</li></ol>
+</li>
+<li><a id="sec-5-2-10-2-2" name="sec-5-2-10-2-2"></a><span class="done DONE">DONE</span> Choose argument parsing method<br  /><div class="outline-text-6" id="text-5-2-10-2-2">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 00:15]</span></span> <br  />
+         docopt chosen
+
+<p>
+See <a href="http://docopt.org/">the docopt site</a> for more information.
+</p>
+</li>
+</ul>
+</div>
+
+<ol class="org-ol"><li><a id="sec-5-2-10-2-2-1" name="sec-5-2-10-2-2-1"></a><span class="done DONE">DONE</span> Implement argument parsing<br  /><div class="outline-text-7" id="text-5-2-10-2-2-1">
+<ul class="org-ul">
+<li>Implemented argument parsing using docopt
+</li>
+</ul>
+
+<p>
+<a href="https://github.com/docopt/docopt/blob/master/examples/calculator_example.py">Calculator example</a>
+</p>
+</div>
+
+<ol class="org-ol"><li><a id="sec-5-2-10-2-2-1-1" name="sec-5-2-10-2-2-1-1"></a><span class="done DONE">DONE</span> Create docopt docstring<br  /><div class="outline-text-8" id="text-5-2-10-2-2-1-1">
+<ul class="org-ul">
+<li>Note taken on <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 04:46]</span></span> <br  />
+          Update docstring example (copy from real docstring)
+</li>
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 00:55]</span></span> <br  />
+          Made base docopt spec
+</li>
+</ul>
+
+<p>
+Use <a href="http://try.docopt.org/">try.docopt.org</a>
+</p>
+
+<pre class="example">
+Benchmark the `SubprocessParserProtocol` (from
+`burrito.aio.subproc`)
+
+Usage:
+  __main__.py &lt;input_time&gt; &lt;iterations&gt; [--debug]
+  __main__.py -h | --help
+  __main__.py --version
+
+Examples:
+  ./__main__.py 1 1
+  python -m burrito.aio.subproc.bench 0.1 10
+  python -m burrito.benchs.aio_subproc 3 1
+
+Options:
+  -h --help     Show this screen.
+  --version     Show version.
+</pre>
+</div>
+</li></ol>
+</li>
+
+<li><a id="sec-5-2-10-2-2-2" name="sec-5-2-10-2-2-2"></a><span class="done DONE">DONE</span> Create code to create temp run sript<br  /><div class="outline-text-7" id="text-5-2-10-2-2-2">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-08 jeu. 19:25]</span></span> <br  />
+         e79a735
+</li>
+</ul>
+
+<p>
+Use <code>burrito.temp.TempFile</code>
+</p>
+
+<p>
+Temp script should read <code>/dev/zero</code> for a given amount of time
+</p>
+
+<p>
+<b>NOTE</b> : File must be made executable
+</p>
+</div>
+</li>
+
+<li><a id="sec-5-2-10-2-2-3" name="sec-5-2-10-2-2-3"></a><span class="done DONE">DONE</span> Create code that runs the temp run script in an event loop<br  /><div class="outline-text-7" id="text-5-2-10-2-2-3">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-08 jeu. 19:25]</span></span> <br  />
+        e79a735
+
+<p>
+<b>NOTE</b> : Uses the <i>benchmark fake protocol</i>
+</p>
+</li>
+</ul>
+</div>
+</li>
+
+<li><a id="sec-5-2-10-2-2-4" name="sec-5-2-10-2-2-4"></a><span class="done DONE">DONE</span> Comment main module<br  /><div class="outline-text-7" id="text-5-2-10-2-2-4">
+<ul class="org-ul">
+<li>Added comments
+</li>
+</ul>
+</div>
+</li></ol>
+</li></ol>
+</li>
+<li><a id="sec-5-2-10-3" name="sec-5-2-10-3"></a><span class="done CANCELED">CANCELED</span> Create sample script in <code>/tmp/tavern.sh</code><br  /><div class="outline-text-5" id="text-5-2-10-3">
+<ul class="org-ul">
+<li>State "CANCELED"   from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-08 jeu. 17:29]</span></span> <br  />
+       Sample script is available from benchmark script, and one will be
+automatically created in the doctests at some point
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-5-2-10-4" name="sec-5-2-10-4"></a><span class="done DONE">DONE</span> Add doctest<br  /><div class="outline-text-5" id="text-5-2-10-4">
+<ul class="org-ul">
+<li>State "DONE"       from "OPEN"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 02:53]</span></span> <br  />
+       <code>e9f4960</code>
+</li>
+</ul>
+<ul class="org-ul">
+<li>Added doctest to SubprocessParserProtocol
+</li>
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 02:35]</span></span>
+</li>
+<li>Note taken on <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 02:34]</span></span> <br  />
+       Base doctest on <a href="benchmark/__main__.py">benchmark main module</a>
+</li>
+<li>Note taken on <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 02:21]</span></span> <br  />
+       rollin one and doing this
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-5-2-10-5" name="sec-5-2-10-5"></a><span class="done DONE">DONE</span> Determine whether the <code>run_process</code> coroutine should be defined<br  /><div class="outline-text-5" id="text-5-2-10-5">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 03:08]</span></span> <br  />
+       yes, it should be provided
+</li>
+<li>Note taken on <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 03:07]</span></span> <br  />
+       probably more adapted to define it as module-level method (not
+protocol-specific)
+</li>
+<li>Note taken on <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 03:04]</span></span> <br  />
+       yeah i guess
+</li>
+</ul>
+<ul class="org-ul">
+<li>Note taken on <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 02:55]</span></span> <br  />
+       It is currently used in the benchmark and doctest
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-5-2-10-6" name="sec-5-2-10-6"></a><span class="done DONE">DONE</span> Write <code>run_process</code> coroutine<br  /><div class="outline-text-5" id="text-5-2-10-6">
+<ul class="org-ul">
+<li>State "DONE"       from "OPEN"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 05:13]</span></span>
+</li>
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 03:16]</span></span>
+</li>
+</ul>
+<ul class="org-ul">
+<li>POC written
+</li>
+</ul>
+</div>
+<ol class="org-ol"><li><a id="sec-5-2-10-6-1" name="sec-5-2-10-6-1"></a><span class="done DONE">DONE</span> Add comments<br  /><div class="outline-text-6" id="text-5-2-10-6-1">
+<ul class="org-ul">
+<li>Added <code>run_process*</code> comments (17c93e8)
+</li>
+</ul>
+</div>
+</li></ol>
+</li>
+<li><a id="sec-5-2-10-7" name="sec-5-2-10-7"></a><span class="done DONE">DONE</span> Change doctest (use <code>run_process</code> coroutine)<br  /><div class="outline-text-5" id="text-5-2-10-7">
+<ul class="org-ul">
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 03:25]</span></span>
+</li>
+</ul>
+<ul class="org-ul">
+<li>Tests passes
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-5-2-10-8" name="sec-5-2-10-8"></a><span class="done DONE">DONE</span> Change benchmark (use <code>run_process</code> coroutine)<br  /><div class="outline-text-5" id="text-5-2-10-8">
+<ul class="org-ul">
+<li>Benchmark fixed, tests passes
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-5-2-10-9" name="sec-5-2-10-9"></a><span class="done DONE">DONE</span> Check code coverage<br  /><div class="outline-text-5" id="text-5-2-10-9">
+<ul class="org-ul">
+<li>State "DONE"       from "OPEN"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 05:57]</span></span>
+</li>
+<li>Note taken on <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 05:57]</span></span> <br  />
+       100% coverage (not branch)
+</li>
+<li>Note taken on <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 05:15]</span></span> <br  />
+       94% on burrito.aio.subprocess.parser.protocol
+</li>
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 03:01]</span></span>
+</li>
+</ul>
+
+<p>
+(<code>b988988</code>)
+</p>
+<pre class="example">
+Name                                   Stmts   Miss Branch BrMiss  Cover   Missing
+----------------------------------------------------------------------------------
+burrito.aio.subprocess.parser.protocol 79      2     20      4    94%   147, 241
+</pre>
+</div>
+</li>
+
+<li><a id="sec-5-2-10-10" name="sec-5-2-10-10"></a><span class="todo TODO">TODO</span> Add docstrings <code>[2/3]</code><br  /><ol class="org-ol"><li><a id="sec-5-2-10-10-1" name="sec-5-2-10-10-1"></a><span class="done DONE">DONE</span> Add module docstring<br  /><div class="outline-text-6" id="text-5-2-10-10-1">
+</div>
+</li>
+<li><a id="sec-5-2-10-10-2" name="sec-5-2-10-10-2"></a><span class="done DONE">DONE</span> Add class docstrings<br  /><div class="outline-text-6" id="text-5-2-10-10-2">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-09 ven. 03:14]</span></span>
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-5-2-10-10-3" name="sec-5-2-10-10-3"></a><span class="todo TODO">TODO</span> Add method docstrings<br  /></li></ol>
+</li></ol>
+</div>
+</div>
+<div id="outline-container-sec-5-3" class="outline-3">
+<h3 id="sec-5-3"><span class="section-number-3">5.3</span> <span class="done DONE">DONE</span> Refactor module structure (module paths) <code>[8/8]</code> <code>[100%]</code></h3>
+<div class="outline-text-3" id="text-5-3">
+<ul class="org-ul">
+<li>State "DONE"       from "OPEN"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 07:22]</span></span> <br  />
+     Module structure was correctly refactored, proposal was described, applied and documented.
+</li>
+</ul>
+<ul class="org-ul">
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 00:50]</span></span>
+</li>
+</ul>
+<p>
+Currently, the subprocess parser protocol is in the
+<code>burrito.aio.subprocess.parser.protocol</code> module. This path is too
+long and has too many nested modules.
+</p>
+
+<p>
+Other alternatives :
+</p>
+
+<dl class="org-dl">
+<dt> <code>burrito.aio.protocols.subproc_parser</code> </dt><dd>using this would allow
+to also create <code>burrito.aio.protocols.subpro_chunk_parser</code>
+</dd>
+<dt> <code>burrito.protocols.subprocess_parser</code> </dt><dd>using this would allow
+to also create <code>burrito.protocols.subprocess_chunk_parser</code>
+</dd>
+<dt> <code>burrito.prots.subproc</code> </dt><dd>using this would allow to also create
+<code>burrito.prots.subproc.chunk</code>
+</dd>
+</dl>
+
+<p>
+Questions to answer :
+</p>
+
+<dl class="org-dl">
+<dt> Do we have to use an <code>aio</code> module ? </dt><dd>remember that there is a
+<code>loop</code> module to handle (currently <code>burrito.aio.loop</code>)
+</dd>
+<dt> How do we split the different concepts ? </dt><dd><ul class="org-ul">
+<li><span class="underline">Protocol</span>
+</li>
+<li><span class="underline">Subprocess</span>
+</li>
+<li><span class="underline">Parser</span>
+</li>
+<li><span class="underline">Chunk</span>
+</li>
+</ul>
+</dd>
+</dl>
+</div>
+
+<div id="outline-container-sec-5-3-1" class="outline-4">
+<h4 id="sec-5-3-1"><span class="section-number-4">5.3.1</span> <span class="done DONE">DONE</span> Make proposal</h4>
+<div class="outline-text-4" id="text-5-3-1">
+<ul class="org-ul">
+<li>Note taken on <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 04:51]</span></span> <br  />
+      Marked future items
+</li>
+<li>Note taken on <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 04:31]</span></span> <br  />
+      Changed proposal (added benchmark aliases)
+</li>
+<li>Note taken on <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 04:23]</span></span> <br  />
+      Changed proposal (shortened <code>benchmark</code> to <code>bench</code>)
+</li>
+<li>State "DONE"       from "OPEN"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 04:21]</span></span>
+</li>
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 04:04]</span></span>
+</li>
+</ul>
+<dl class="org-dl">
+<dt> <code>burrito</code> </dt><dd><span class="underline">Main module</span>
+<dl class="org-dl">
+<dt> <code>temp</code> </dt><dd><span class="underline">Temporary entities</span>
+</dd>
+<dt> <code>chunk_parser</code> </dt><dd><span class="underline">Chunk parser</span>
+</dd>
+<dt> <code>aio</code> </dt><dd><span class="underline">AsyncIO-specific code</span>
+<dl class="org-dl">
+<dt> <code>loop</code> </dt><dd>Event loop handling
+</dd>
+<dt> <code>subproc</code> </dt><dd>Subprocess handling (subprocess protocol)
+<dl class="org-dl">
+<dt> <code>bench</code> </dt><dd>Subprocess protocol benchmark
+</dd>
+<dt> <code>chunk_parser</code> </dt><dd>Subprocess chunk parser (subprocess chunk
+parser protocol) (<b>future</b>)
+<dl class="org-dl">
+<dt> <code>bench</code> </dt><dd>Subprocess chunk parser protocol
+benchmark (<b>future</b>)
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+<dt> <code>benchs</code> </dt><dd><span class="underline">Benchmarks</span>
+<dl class="org-dl">
+<dt> <code>aio_subproc</code> </dt><dd>Alias for <code>burrito.aio.subproc.bench</code>
+</dd>
+<dt> <code>aio_subproc_chunk_parser</code> = </dt><dd>Alias for
+<code>burrito.aio.subproc.bench</code> (<b>future</b>)
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-sec-5-3-2" class="outline-4">
+<h4 id="sec-5-3-2"><span class="section-number-4">5.3.2</span> <span class="done DONE">DONE</span> Implement proposal</h4>
+<div class="outline-text-4" id="text-5-3-2">
+<ul class="org-ul">
+<li>State "DONE"       from "OPEN"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 04:51]</span></span> <br  />
+      Proposal implemented (<code>7ab64b6</code>)
+</li>
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 04:21]</span></span>
+</li>
+</ul>
+<ul class="org-ul">
+<li>Moved files to their new location
+</li>
+</ul>
+</div>
+<ol class="org-ol"><li><a id="sec-5-3-2-1" name="sec-5-3-2-1"></a><span class="done DONE">DONE</span> Fix imports module paths<br  /><div class="outline-text-5" id="text-5-3-2-1">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 04:33]</span></span> <br  />
+       Fixed imports (mostly in benchmark modules)
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-5-3-2-2" name="sec-5-3-2-2"></a><span class="done DONE">DONE</span> Fix docstring module paths<br  /><div class="outline-text-5" id="text-5-3-2-2">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 04:35]</span></span> <br  />
+       Nothing to do
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-5-3-2-3" name="sec-5-3-2-3"></a><span class="done DONE">DONE</span> Fix comments module paths<br  /><div class="outline-text-5" id="text-5-3-2-3">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 04:35]</span></span> <br  />
+       Nothing to do
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-5-3-2-4" name="sec-5-3-2-4"></a><span class="done DONE">DONE</span> Fix dev notes module paths<br  /><div class="outline-text-5" id="text-5-3-2-4">
+<ul class="org-ul">
+<li>State "DONE"       from "OPEN"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 04:38]</span></span> <br  />
+       Fixed dev notes
+</li>
+</ul>
+<ul class="org-ul">
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 04:35]</span></span>
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-5-3-2-5" name="sec-5-3-2-5"></a><span class="done DONE">DONE</span> Make everything work together nicely<br  /><div class="outline-text-5" id="text-5-3-2-5">
+<ul class="org-ul">
+<li>State "DONE"       from "OPEN"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 04:51]</span></span>
+</li>
+<li>Note taken on <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 04:49]</span></span> <br  />
+       Looks like it does (tests are running, coverage is 95%, benchmark is working)
+</li>
+</ul>
+<ul class="org-ul">
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 04:40]</span></span>
+</li>
+</ul>
+</div>
+</li></ol>
+</div>
+<div id="outline-container-sec-5-3-3" class="outline-4">
+<h4 id="sec-5-3-3"><span class="section-number-4">5.3.3</span> <span class="done DONE">DONE</span> Review new structure</h4>
+<div class="outline-text-4" id="text-5-3-3">
+<ul class="org-ul">
+<li>State "DONE"       from "OPEN"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 05:24]</span></span>
+</li>
+</ul>
+<ul class="org-ul">
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 04:53]</span></span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-5-4" class="outline-3">
+<h3 id="sec-5-4"><span class="section-number-3">5.4</span> <span class="todo TODO">TODO</span> Implement protocol in <code>SubprocessChunkParserProtocol</code> <code>[13/26]</code> <code>[50%]</code></h3>
+<div class="outline-text-3" id="text-5-4">
+</div>
+<div id="outline-container-sec-5-4-1" class="outline-4">
+<h4 id="sec-5-4-1"><span class="section-number-4">5.4.1</span> <span class="done DONE">DONE</span> Make task list</h4>
+<div class="outline-text-4" id="text-5-4-1">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 08:04]</span></span>
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-sec-5-4-2" class="outline-4">
+<h4 id="sec-5-4-2"><span class="section-number-4">5.4.2</span> <span class="todo TODO">TODO</span> Document in dev notes</h4>
+<div class="outline-text-4" id="text-5-4-2">
+</div><ol class="org-ol"><li><a id="sec-5-4-2-1" name="sec-5-4-2-1"></a><span class="todo TODO">TODO</span> Write description<br  /></li>
+<li><a id="sec-5-4-2-2" name="sec-5-4-2-2"></a><span class="todo TODO">TODO</span> Reference in package structure<br  /></li></ol>
+</div>
+<div id="outline-container-sec-5-4-3" class="outline-4">
+<h4 id="sec-5-4-3"><span class="section-number-4">5.4.3</span> <span class="todo TODO">TODO</span> Implement POC</h4>
+<div class="outline-text-4" id="text-5-4-3">
+</div><ol class="org-ol"><li><a id="sec-5-4-3-1" name="sec-5-4-3-1"></a><span class="done DONE">DONE</span> Create new module and files<br  /><div class="outline-text-5" id="text-5-4-3-1">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 08:16]</span></span>
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-5-4-3-2" name="sec-5-4-3-2"></a><span class="done DONE">DONE</span> Add module logger code<br  /><div class="outline-text-5" id="text-5-4-3-2">
+<ul class="org-ul">
+<li>State "DONE"       from "OPEN"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 08:20]</span></span>
+</li>
+</ul>
+<ul class="org-ul">
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 08:16]</span></span>
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-5-4-3-3" name="sec-5-4-3-3"></a><span class="done DONE">DONE</span> Define parameters list (constructor arguments and class attributes)<br  /><div class="outline-text-5" id="text-5-4-3-3">
+<ul class="org-ul">
+<li>State "DONE"       from "OPEN"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 08:27]</span></span>
+</li>
+</ul>
+<ul class="org-ul">
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 08:04]</span></span>
+</li>
+</ul>
+<dl class="org-dl">
+<dt> <code>regex_sets</code> </dt><dd>Regular expression definitions (<code>dict</code>, keys are
+the FD numbers, values are the corresponding regex
+lists)
+</dd>
+<dt> <code>parser_class</code> </dt><dd>Parser class to use (<code>ChunkParser</code> by default)
+</dd>
+</dl>
+</div>
+</li>
+
+
+<li><a id="sec-5-4-3-4" name="sec-5-4-3-4"></a><span class="done DONE">DONE</span> Import subprocess parser protocol<br  /><div class="outline-text-5" id="text-5-4-3-4">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 08:27]</span></span>
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-5-4-3-5" name="sec-5-4-3-5"></a><span class="done DONE">DONE</span> Import chunk parser<br  /><div class="outline-text-5" id="text-5-4-3-5">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 08:27]</span></span>
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-5-4-3-6" name="sec-5-4-3-6"></a><span class="done DONE">DONE</span> Subclass subprocess parser protocol<br  /><div class="outline-text-5" id="text-5-4-3-6">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 08:29]</span></span>
+</li>
+</ul>
+<ul class="org-ul">
+<li>Note taken on <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 08:27]</span></span> <br  />
+       class name gets a bit long.. (<code>SubprocessChunkParserProtocol</code>)
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-5-4-3-7" name="sec-5-4-3-7"></a><span class="done DONE">DONE</span> Add parameters attributes<br  /><div class="outline-text-5" id="text-5-4-3-7">
+<ul class="org-ul">
+<li>State "DONE"       from "OPEN"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 08:30]</span></span>
+</li>
+</ul>
+<ul class="org-ul">
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 08:29]</span></span>
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-5-4-3-8" name="sec-5-4-3-8"></a><span class="done DONE">DONE</span> Add constructor<br  /><div class="outline-text-5" id="text-5-4-3-8">
+<ul class="org-ul">
+<li>State "DONE"       from "OPEN"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 09:00]</span></span>
+</li>
+</ul>
+<ul class="org-ul">
+<li>State "OPEN"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 08:42]</span></span>
+</li>
+</ul>
+</div>
+<ol class="org-ol"><li><a id="sec-5-4-3-8-1" name="sec-5-4-3-8-1"></a><span class="done CANCELED">CANCELED</span> Add instance logger code<br  /><div class="outline-text-6" id="text-5-4-3-8-1">
+<ul class="org-ul">
+<li>State "CANCELED"   from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 08:41]</span></span> <br  />
+        Already handled in SubprocessParserProtocol
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-5-4-3-8-2" name="sec-5-4-3-8-2"></a><span class="done DONE">DONE</span> Handle parameters<br  /><div class="outline-text-6" id="text-5-4-3-8-2">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 09:00]</span></span>
+</li>
+</ul>
+</div>
+</li></ol>
+</li>
+<li><a id="sec-5-4-3-9" name="sec-5-4-3-9"></a><span class="done DONE">DONE</span> Add parser factory<br  /><div class="outline-text-5" id="text-5-4-3-9">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 19:11]</span></span> <br  />
+       seems to work :)
+</li>
+</ul>
+</div>
+</li></ol>
+</div>
+<div id="outline-container-sec-5-4-4" class="outline-4">
+<h4 id="sec-5-4-4"><span class="section-number-4">5.4.4</span> <span class="done DONE">DONE</span> Check that POC passes syntax and pyflakes checks</h4>
+<div class="outline-text-4" id="text-5-4-4">
+<ul class="org-ul">
+<li>State "DONE"       from "TODO"       <span class="timestamp-wrapper"><span class="timestamp">[2015-01-10 sam. 09:12]</span></span>
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-sec-5-4-5" class="outline-4">
+<h4 id="sec-5-4-5"><span class="section-number-4">5.4.5</span> <span class="todo TODO">TODO</span> Review POC</h4>
+</div>
+<div id="outline-container-sec-5-4-6" class="outline-4">
+<h4 id="sec-5-4-6"><span class="section-number-4">5.4.6</span> <span class="todo TODO">TODO</span> Comment POC</h4>
+</div>
+<div id="outline-container-sec-5-4-7" class="outline-4">
+<h4 id="sec-5-4-7"><span class="section-number-4">5.4.7</span> <span class="todo TODO">TODO</span> Add debugging to POC</h4>
+</div>
+<div id="outline-container-sec-5-4-8" class="outline-4">
+<h4 id="sec-5-4-8"><span class="section-number-4">5.4.8</span> <span class="todo TODO">TODO</span> Run real tests</h4>
+</div>
+<div id="outline-container-sec-5-4-9" class="outline-4">
+<h4 id="sec-5-4-9"><span class="section-number-4">5.4.9</span> <span class="todo TODO">TODO</span> Add documentation</h4>
+</div>
+<div id="outline-container-sec-5-4-10" class="outline-4">
+<h4 id="sec-5-4-10"><span class="section-number-4">5.4.10</span> <span class="todo TODO">TODO</span> Add doctests</h4>
+</div>
+<div id="outline-container-sec-5-4-11" class="outline-4">
+<h4 id="sec-5-4-11"><span class="section-number-4">5.4.11</span> <span class="todo TODO">TODO</span> Cleanup code</h4>
+</div>
+<div id="outline-container-sec-5-4-12" class="outline-4">
+<h4 id="sec-5-4-12"><span class="section-number-4">5.4.12</span> <span class="todo TODO">TODO</span> Cleanup debug</h4>
+</div>
+<div id="outline-container-sec-5-4-13" class="outline-4">
+<h4 id="sec-5-4-13"><span class="section-number-4">5.4.13</span> <span class="todo TODO">TODO</span> Benchmark</h4>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: pstch, eden</p>
+<p class="date">Created: 2015-01-10 sam. 19:12</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.3.1 (<a href="http://orgmode.org">Org</a> mode 8.2.7c)</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
